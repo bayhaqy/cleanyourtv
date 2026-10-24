@@ -1,4 +1,4 @@
-package local.tvcare;
+package io.github.bayhaqy.tvcare;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public class Care extends Activity {
     static final int RED = 0xFFE11D2E, WHITE = 0xFFF5F5F7, DIM = 0xFF8A8A93, CARD = 0xFF141417, LINE = 0xFF26262B;
-    private static final String SELF = "local.tvcare", HOME = "com.gathin.tvhome";
+    private static final String HOME = "com.gathin.tvhome";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Typeface face;
@@ -85,8 +85,8 @@ public class Care extends Activity {
 
         LinearLayout head = new LinearLayout(this);
         head.setGravity(Gravity.BOTTOM);
-        head.addView(text("TV Care", 34, WHITE));
-        TextView sub = text("KONDISI & PERAWATAN TV", 11, DIM);
+        head.addView(text(getString(R.string.app_name), 34, WHITE));
+        TextView sub = text(getString(R.string.subtitle), 11, DIM);
         sub.setLetterSpacing(0.22f);
         sub.setPadding(px(16), 0, 0, px(8));
         head.addView(sub);
@@ -96,24 +96,24 @@ public class Care extends Activity {
         cards.setPadding(0, px(18), 0, 0);
         ram = new Ring(this, face);
         disk = new Ring(this, face);
-        cards.addView(card("MEMORI", ram), weighted(1f));
-        cards.addView(card("PENYIMPANAN", disk), weighted(1f));
+        cards.addView(card(getString(R.string.memory), ram), weighted(1f));
+        cards.addView(card(getString(R.string.storage), disk), weighted(1f));
         sys = text("", 15, WHITE);
         sys.setLineSpacing(px(6), 1f);
-        cards.addView(card("SISTEM", sys), weighted(1.15f));
+        cards.addView(card(getString(R.string.system), sys), weighted(1.15f));
         net = text("", 15, WHITE);
         net.setLineSpacing(px(6), 1f);
-        cards.addView(card("JARINGAN", net), weighted(1.35f));
+        cards.addView(card(getString(R.string.network), net), weighted(1.35f));
         page.addView(cards, new LinearLayout.LayoutParams(-1, px(196)));
 
         LinearLayout bottom = new LinearLayout(this);
         bottom.setPadding(0, px(20), 0, 0);
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
-        clean = button("Bersihkan RAM", 18);
+        clean = button(getString(R.string.clean), 18);
         clean.setOnClickListener(v -> cleanAll());
         left.addView(clean, new LinearLayout.LayoutParams(px(220), px(56)));
-        cleanResult = text("Menutup semua aplikasi yang berjalan di latar.", 13, DIM);
+        cleanResult = text(getString(R.string.clean_hint), 13, DIM);
         cleanResult.setPadding(px(4), px(10), 0, 0);
         left.addView(cleanResult, new LinearLayout.LayoutParams(px(220), -2));
         bottom.addView(left);
@@ -121,7 +121,7 @@ public class Care extends Activity {
         LinearLayout right = new LinearLayout(this);
         right.setOrientation(LinearLayout.VERTICAL);
         right.setPadding(px(28), 0, 0, 0);
-        TextView appsLabel = text("APLIKASI TERAKHIR  ·  OK UNTUK MENUTUP", 11, DIM);
+        TextView appsLabel = text(getString(R.string.recent_apps), 11, DIM);
         appsLabel.setLetterSpacing(0.18f);
         right.addView(appsLabel);
         appsHint = text("", 13, DIM);
@@ -175,13 +175,15 @@ public class Care extends Activity {
         }
         StatFs fs = new StatFs(Environment.getDataDirectory().getPath());
         long total = fs.getTotalBytes(), free = fs.getAvailableBytes();
-        disk.set(Readings.percent(total - free, total), Readings.bytes(free) + " SISA / " + Readings.bytes(total));
+        disk.set(Readings.percent(total - free, total), getString(R.string.disk_free, Readings.bytes(free), Readings.bytes(total)));
 
         StringBuilder s = new StringBuilder();
         int cpu = cpu();
-        s.append(cpu >= 0 ? "CPU  " + cpu + "%" : "CPU  " + Runtime.getRuntime().availableProcessors() + " inti");
-        s.append("\nSuhu  ").append(thermal());
-        s.append("\nMenyala  ").append(Readings.uptime(SystemClock.elapsedRealtime()));
+        s.append(cpu >= 0 ? getString(R.string.cpu_percent, cpu)
+                : getString(R.string.cpu_cores, Runtime.getRuntime().availableProcessors()));
+        s.append('\n').append(getString(R.string.thermal, thermal()));
+        s.append('\n').append(getString(R.string.uptime, Readings.uptime(SystemClock.elapsedRealtime(),
+                getString(R.string.days_hours), getString(R.string.hours_minutes), getString(R.string.minutes))));
         sys.setText(s);
         net.setText(network());
     }
@@ -204,13 +206,13 @@ public class Care extends Activity {
         PowerManager pm = getSystemService(PowerManager.class);
         if (pm == null || android.os.Build.VERSION.SDK_INT < 29) return "–";
         switch (pm.getCurrentThermalStatus()) {
-            case PowerManager.THERMAL_STATUS_NONE: return "Normal";
-            case PowerManager.THERMAL_STATUS_LIGHT: return "Hangat";
-            case PowerManager.THERMAL_STATUS_MODERATE: return "Panas";
+            case PowerManager.THERMAL_STATUS_NONE: return getString(R.string.thermal_normal);
+            case PowerManager.THERMAL_STATUS_LIGHT: return getString(R.string.thermal_warm);
+            case PowerManager.THERMAL_STATUS_MODERATE: return getString(R.string.thermal_hot);
             case PowerManager.THERMAL_STATUS_SEVERE:
             case PowerManager.THERMAL_STATUS_CRITICAL:
             case PowerManager.THERMAL_STATUS_EMERGENCY:
-            case PowerManager.THERMAL_STATUS_SHUTDOWN: return "Sangat panas";
+            case PowerManager.THERMAL_STATUS_SHUTDOWN: return getString(R.string.thermal_very_hot);
             default: return "–";
         }
     }
@@ -219,7 +221,7 @@ public class Care extends Activity {
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         Network n = cm.getActiveNetwork();
         NetworkCapabilities caps = n == null ? null : cm.getNetworkCapabilities(n);
-        if (caps == null) return "Tidak terhubung";
+        if (caps == null) return getString(R.string.not_connected);
         StringBuilder s = new StringBuilder();
         if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
             WifiInfo w = getSystemService(WifiManager.class).getConnectionInfo();
@@ -260,15 +262,15 @@ public class Care extends Activity {
         ActivityManager am = getSystemService(ActivityManager.class);
         int n = 0;
         for (ApplicationInfo ai : getPackageManager().getInstalledApplications(0)) {
-            if (ai.packageName.equals(SELF) || ai.packageName.equals(HOME)) continue;
+            if (ai.packageName.equals(getPackageName()) || ai.packageName.equals(HOME)) continue;
             am.killBackgroundProcesses(ai.packageName);
             n++;
         }
-        cleanResult.setText("Membersihkan " + n + " aplikasi…");
+        cleanResult.setText(getString(R.string.cleaning, n));
         handler.postDelayed(() -> {
             long[] after = mem();
             long freed = before == null || after == null ? 0 : Math.max(0, after[0] - before[0]);
-            cleanResult.setText("Selesai · " + Readings.bytes(freed) + " dibebaskan");
+            cleanResult.setText(getString(R.string.cleaned, Readings.bytes(freed)));
             loadApps();
             refresh();
             clean.requestFocus();   // the app row was rebuilt under the focus
@@ -282,7 +284,7 @@ public class Care extends Activity {
         List<UsageStats> list = usm == null ? null
                 : usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 3 * 86_400_000L, now);
         if (list == null || list.isEmpty()) {
-            appsHint.setText("Izin riwayat aplikasi belum diberikan.");
+            appsHint.setText(getString(R.string.no_usage_access));
             return;
         }
         appsHint.setText("");
@@ -292,7 +294,7 @@ public class Care extends Activity {
         Set<String> seen = new HashSet<>();
         for (UsageStats u : sorted) {
             String pkg = u.getPackageName();
-            if (u.getLastTimeUsed() <= 0 || pkg.equals(SELF) || pkg.equals(HOME) || !seen.add(pkg)) continue;
+            if (u.getLastTimeUsed() <= 0 || pkg.equals(getPackageName()) || pkg.equals(HOME) || !seen.add(pkg)) continue;
             Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
             if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
             if (launch == null) continue;
@@ -319,7 +321,7 @@ public class Care extends Activity {
         name.setGravity(Gravity.CENTER);
         name.setPadding(0, px(8), 0, 0);
         chip.addView(name, new LinearLayout.LayoutParams(px(104), -2));
-        TextView state = text("Tutup", 11, DIM);
+        TextView state = text(getString(R.string.close), 11, DIM);
         state.setGravity(Gravity.CENTER);
         chip.addView(state, new LinearLayout.LayoutParams(px(104), -2));
         focusable(chip, name, state);
@@ -329,7 +331,7 @@ public class Care extends Activity {
             handler.postDelayed(() -> {
                 long[] after = mem();
                 long freed = before == null || after == null ? 0 : Math.max(0, after[0] - before[0]);
-                state.setText(freed > 0 ? "Ditutup · " + Readings.bytes(freed) : "Ditutup");
+                state.setText(freed > 0 ? getString(R.string.closed_freed, Readings.bytes(freed)) : getString(R.string.closed));
             }, 800);
         });
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);

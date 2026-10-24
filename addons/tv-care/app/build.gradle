@@ -1,9 +1,9 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'local.tvcare'
+    namespace 'io.github.bayhaqy.tvcare'
     compileSdk 34
     buildFeatures { aidl false }
-    defaultConfig { applicationId 'local.tvcare'; minSdk 26; targetSdk 34; versionCode 1; versionName '1.0' }
+    defaultConfig { applicationId 'io.github.bayhaqy.tvcare'; minSdk 26; targetSdk 34; versionCode 1; versionName '1.0' }
     buildTypes { release {
         minifyEnabled true
         shrinkResources true

@@ -1,4 +1,4 @@
-package local.tvcare;
+package io.github.bayhaqy.tvcare;
 
 import java.util.Locale;
 
@@ -51,11 +51,12 @@ final class Readings {
         return mb >= 100 ? Math.round(mb) + " Mb/s" : String.format(Locale.US, "%.1f Mb/s", mb);
     }
 
-    static String uptime(long ms) {
+    /** Uptime with the caller's formats: "%d hari %d jam", "%d jam %d mnt", "%d mnt" (or their English twins). */
+    static String uptime(long ms, String daysHours, String hoursMinutes, String minutes) {
         long min = ms / 60_000, h = min / 60, d = h / 24;
-        if (d > 0) return d + " hari " + (h % 24) + " jam";
-        if (h > 0) return h + " jam " + (min % 60) + " mnt";
-        return min + " mnt";
+        if (d > 0) return String.format(Locale.ROOT, daysHours, d, h % 24);
+        if (h > 0) return String.format(Locale.ROOT, hoursMinutes, h, min % 60);
+        return String.format(Locale.ROOT, minutes, min);
     }
 
     /** Wi-Fi signal as 0 to 4 bars. */

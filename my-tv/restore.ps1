@@ -18,6 +18,6 @@ $py = 'tools\venv\Scripts\python.exe'
 & $py tools\tv.py 'settings put global window_animation_scale 1.0; settings put global transition_animation_scale 1.0; settings put global animator_duration_scale 1.0'
 
 # 3. Optional: remove the launcher and the add-ons this setup installed.
-#    & $py tools\tv.py 'pm uninstall com.gathin.tvhome; pm uninstall local.tvcare; pm uninstall io.github.maxhayim.tvhub'
+#    & $py tools\tv.py 'pm uninstall com.gathin.tvhome; pm uninstall io.github.bayhaqy.tvcare; pm uninstall io.github.maxhayim.tvhub'
 & $py tools\tv.py 'cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tail -1'
 Write-Host 'Done. Apps uninstalled from the Play Store during the setup can be installed again from the Play Store.'

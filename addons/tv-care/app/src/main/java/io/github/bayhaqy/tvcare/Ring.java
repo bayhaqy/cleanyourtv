@@ -1,4 +1,4 @@
-package local.tvcare;
+package io.github.bayhaqy.tvcare;
 
 import android.content.Context;
 import android.graphics.Canvas;

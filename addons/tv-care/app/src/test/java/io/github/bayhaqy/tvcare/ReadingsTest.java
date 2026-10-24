@@ -1,10 +1,12 @@
-package local.tvcare;
+package io.github.bayhaqy.tvcare;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ReadingsTest {
+    private static final String[] ID = {"%d hari %d jam", "%d jam %d mnt", "%d mnt"};
+
     @Test public void memInfoReadsAvailableAndTotal() {
         long[] m = Readings.memInfo("MemTotal:         924856 kB\nMemFree:           73296 kB\nMemAvailable:     286880 kB\n");
         assertArrayEquals(new long[] {286880L * 1024, 924856L * 1024}, m);
@@ -37,9 +39,9 @@ public class ReadingsTest {
     }
 
     @Test public void uptimeInIndonesian() {
-        assertEquals("12 mnt", Readings.uptime(12 * 60_000L));
-        assertEquals("4 jam 12 mnt", Readings.uptime((4 * 60 + 12) * 60_000L));
-        assertEquals("3 hari 4 jam", Readings.uptime(((3 * 24 + 4) * 60 + 30) * 60_000L));
+        assertEquals("12 mnt", Readings.uptime(12 * 60_000L, ID[0], ID[1], ID[2]));
+        assertEquals("4 jam 12 mnt", Readings.uptime((4 * 60 + 12) * 60_000L, ID[0], ID[1], ID[2]));
+        assertEquals("3 hari 4 jam", Readings.uptime(((3 * 24 + 4) * 60 + 30) * 60_000L, ID[0], ID[1], ID[2]));
     }
 
     @Test public void signalBarsFromRssi() {
