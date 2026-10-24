@@ -185,6 +185,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView raceKicker, raceHeadline, raceSessions;
     /** config.xml show_stats, overridable by a theme. Off: the line is gone and nothing is read. */
     private boolean showStats;
+    /** config.xml glance_line: weather, next prayer, RAM and storage in place of the stats line; null when off. */
+    private Glance glance;
     private boolean shamsi;
     /** greeting_name: said after the greeting, which is shown in capitals. */
     private String greetingName = "";
@@ -442,7 +444,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         raceKicker = findViewById(R.id.raceKicker);
         raceHeadline = findViewById(R.id.raceHeadline);
         raceSessions = findViewById(R.id.raceSessions);
-        showStats = cfg.showStats;
+        if (getResources().getBoolean(R.bool.glance_line)) {
+            glance = new Glance(this);
+            stats.setTextSize(16);
+        }
+        showStats = cfg.showStats || glance != null;
         shamsi = cfg.shamsiDate;
         greetingName = cfg.greetingName;
         if (shamsi) {
@@ -1921,7 +1927,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             @Override
             public void run() {
                 if (statsBg != bg) return;
-                String line = readStatsLine();
+                CharSequence line = glance != null ? readGlanceLine() : readStatsLine();
                 handler.post(() -> {
                     if (showStats && stats != null && statsBg == bg) stats.setText(line);
                 });
@@ -1945,6 +1951,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static void appendStat(StringBuilder line, String part) {
         if (line.length() > 0) line.append("  ·  ");
         line.append(part);
+    }
+
+    /** The glance line: refreshes its network data when due, then RAM in use and free storage. Off-thread. */
+    private CharSequence readGlanceLine() {
+        glance.refreshIfDue();
+        long[] mem = memUsedOfTotalMb();
+        int ram = mem == null ? -1 : (int) Math.round(mem[0] * 100.0 / mem[1]);
+        java.io.File data = Environment.getDataDirectory();
+        String free = formatGb(getResources(), data.getFreeSpace()), total = formatGb(getResources(), data.getTotalSpace());
+        // "2.1/4.2 GB": free of total, the unit once.
+        String disk = free.isEmpty() || total.isEmpty() ? free : free.replace(" GB", "") + "/" + total;
+        return glance.line(ram, disk);
     }
 
     private String readStatsLine() {

@@ -18,9 +18,9 @@
     <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
     <string-array name="dock_apps">
         <item>com.netflix.ninja</item>
-        <item>com.amazon.amazonvideo.livingroom</item>
         <item>com.google.android.youtube.tv</item>
-        <item>in.startv.hotstar</item>
+        <item>com.vidio.android.tv</item>
+        <item>com.catchplay.asiaplay.common.tv</item>
     </string-array>
     <!-- With fewer dock_apps than columns (or a dock app that is not installed), the free dock slots take
          the first grid apps, so the dock never shows a gap. false leaves them empty (#162); a theme can
@@ -310,6 +310,13 @@
     <!-- One line under the clock: CPU, free memory and free storage. Off by default; a theme can set
          "show_stats": true. Nothing is read, and the clock does not move, while this is false. -->
     <bool name="show_stats">false</bool>
+
+    <!-- The stats line as a glance line: weather and US AQI (Open-Meteo), the next prayer (Aladhan, prayer_method)
+         at latitude/longitude, RAM in use and free storage. Needs the INTERNET permission this build adds; network is
+         used only while Home is resumed, weather every 30 minutes, prayer times once a day. -->
+    <bool name="glance_line">true</bool>
+    <!-- Aladhan calculation method for the glance line: 20 is KEMENAG (Kementerian Agama Republik Indonesia). -->
+    <string name="prayer_method" translatable="false">20</string>
 
     <!-- Time-of-day backdrop behind everything: a dark gradient that follows the clock, with a warm
          horizon glow around sunrise and sunset. 0 keeps the plain background (the default); 1 to 100

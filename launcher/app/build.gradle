@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+// Private settings kept out of git: local.properties (ignored) may hold the TV's location, which then replaces
+// the empty values in res/values/config.xml in the release build. Nothing about where the TV is lives in the repo.
+def privateProps = new Properties()
+def privateFile = rootProject.file('local.properties')
+if (privateFile.exists()) privateFile.withInputStream { privateProps.load(it) }
+
 android {
     namespace 'com.gathin.tvhome'
     compileSdk 34
@@ -23,6 +29,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
             signingConfig signingConfigs.debug
+            if (privateProps['location.latitude']) {
+                resValue 'string', 'latitude', privateProps['location.latitude']
+                resValue 'string', 'longitude', privateProps['location.longitude'] ?: ''
+            }
         }
     }
 
