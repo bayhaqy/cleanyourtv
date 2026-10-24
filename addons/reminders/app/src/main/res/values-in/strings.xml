@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Pengingat</string>
+    <string name="subtitle">PENGINGAT &amp; KALENDER</string>
+    <string name="add">+ Pengingat baru</string>
+    <string name="edit">Ubah pengingat</string>
+    <string name="quick_15">+15 mnt</string>
+    <string name="quick_30">+30 mnt</string>
+    <string name="quick_60">+1 jam</string>
+    <string name="quick_tomorrow">Besok 07.00</string>
+    <string name="created">Pengingat dipasang untuk %1$s</string>
+    <string name="empty">Belum ada pengingat. Tambahkan di sini, atau ucapkan \"Hey Google, setel alarm\".</string>
+    <string name="list_title">PENGINGAT ANDA</string>
+    <string name="calendar">KALENDER</string>
+    <string name="next">Berikutnya: %1$s · %2$s</string>
+    <string name="none_next">Tidak ada pengingat terdekat</string>
+    <string name="off">Mati</string>
+    <string name="repeat_once">Sekali</string>
+    <string name="repeat_daily">Setiap hari</string>
+    <string name="repeat_weekdays">Hari kerja</string>
+    <string name="repeat_weekly">Mingguan</string>
+    <string name="every">Setiap %1$s</string>
+    <string name="default_label">Pengingat</string>
+    <string name="edit_time">WAKTU · ATAS/BAWAH MENGUBAH · OK UNTUK LANJUT</string>
+    <string name="edit_repeat">ULANGI</string>
+    <string name="edit_label">LABEL</string>
+    <string name="label_hint">Atau ketik sendiri</string>
+    <string name="save">Simpan</string>
+    <string name="delete">Hapus</string>
+    <string name="cancel">Batal</string>
+    <string name="snooze">Tunda 10 menit</string>
+    <string name="done">Selesai</string>
+    <string name="alert_kicker">PENGINGAT</string>
+    <string-array name="presets">
+        <item>Minum obat</item>
+        <item>Salat</item>
+        <item>Jemput anak</item>
+        <item>Bayar tagihan</item>
+        <item>Olahraga</item>
+        <item>Waktunya tidur</item>
+    </string-array>
+</resources>

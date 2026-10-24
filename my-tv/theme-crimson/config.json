@@ -28,13 +28,9 @@
   "advanced_effects": true,
   "wallpaper": true,
   "app_library": true,
-  "library_apps": [
-    "com.android.deskclock"
-  ],
   "app_labels": [
     "com.majnioui.tv.prayer=Waktu Salat",
     "io.github.sumyabazar1.weather=Cuaca",
-    "com.android.deskclock=Alarm",
     "com.phlox.tvwebbrowser=Browser"
   ],
   "dock_opacity": 55,

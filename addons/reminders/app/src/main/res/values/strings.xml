@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Reminders</string>
+    <string name="subtitle">REMINDERS &amp; CALENDAR</string>
+    <string name="add">+ New reminder</string>
+    <string name="edit">Edit reminder</string>
+    <string name="quick_15">+15 min</string>
+    <string name="quick_30">+30 min</string>
+    <string name="quick_60">+1 hour</string>
+    <string name="quick_tomorrow">Tomorrow 07:00</string>
+    <string name="created">Reminder set for %1$s</string>
+    <string name="empty">No reminders yet. Add one here, or say \"Hey Google, set an alarm\".</string>
+    <string name="list_title">YOUR REMINDERS</string>
+    <string name="calendar">CALENDAR</string>
+    <string name="next">Next: %1$s · %2$s</string>
+    <string name="none_next">Nothing coming up</string>
+    <string name="off">Off</string>
+    <string name="repeat_once">Once</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_weekdays">Weekdays</string>
+    <string name="repeat_weekly">Weekly</string>
+    <string name="every">Every %1$s</string>
+    <string name="default_label">Reminder</string>
+    <string name="edit_time">TIME · UP/DOWN TO CHANGE · OK TO GO ON</string>
+    <string name="edit_repeat">REPEAT</string>
+    <string name="edit_label">LABEL</string>
+    <string name="label_hint">Or type your own</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="snooze">Snooze 10 min</string>
+    <string name="done">Done</string>
+    <string name="alert_kicker">REMINDER</string>
+    <string-array name="presets">
+        <item>Take medicine</item>
+        <item>Prayer</item>
+        <item>Pick up the kids</item>
+        <item>Pay bills</item>
+        <item>Exercise</item>
+        <item>Bedtime</item>
+    </string-array>
+</resources>

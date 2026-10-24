@@ -76,6 +76,13 @@ TV Bro installed as the browser (Chrome is not available for Android TV), Ambien
   by category (401-). TV Hub source: `https://raw.githubusercontent.com/bayhaqy/cleanyourtv/main/my-tv/iptv/pilihan.m3u`.
   Run the script again now and then and push: dead streams drop out.
 
+**Third pass**:
+- `addons/reminders` (new): remote-friendly reminders with a month calendar; a reminder set two minutes ahead woke
+  the TV from standby and came up full screen. Replaces the stock Clock tile on Home.
+- Launcher look: glass rims on tiles, a sheen along the dock, a 2dp focus ring, layered header pills, Outfit
+  ExtraLight 60sp clock with tabular figures, sub-pixel glance text, and the wallpaper rendered at the panel's own
+  1280x720 in 32-bit colour. The panel has only one display mode (1280x720), so nothing above 720p is possible.
+
 ## Rebuild on a Windows PC with little free memory
 
 Gradle needs its heap capped on this PC, or the daemon dies:
