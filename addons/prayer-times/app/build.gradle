@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+// Private settings kept out of git: local.properties (ignored) may hold the TV's location, which then replaces
+// the empty values in res/values/config.xml in the release build. Nothing about where the TV is lives in the repo.
+def privateProps = new Properties()
+def privateFile = rootProject.file('local.properties')
+if (privateFile.exists()) privateFile.withInputStream { privateProps.load(it) }
+
 android {
     namespace 'com.majnioui.tv.prayer'
     compileSdk 34
@@ -21,6 +27,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             // Sideloaded over ADB like the launcher: signed with the debug key.
             signingConfig signingConfigs.debug
+            if (privateProps['location.latitude']) {
+                resValue 'string', 'latitude', privateProps['location.latitude']
+                resValue 'string', 'longitude', privateProps['location.longitude'] ?: ''
+                resValue 'string', 'place', privateProps['location.place'] ?: ''
+            }
+            if (privateProps['prayer.method']) resValue 'string', 'method', privateProps['prayer.method']
         }
     }
 
