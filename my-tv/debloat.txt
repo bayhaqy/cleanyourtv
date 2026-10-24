@@ -1,0 +1,43 @@
+# Changhong 43" (Skyworth-built, codename shibuya, MediaTek), Android TV 11 (API 30), firmware RTO9.240708.002
+# Fingerprint skyworth/SW1_T/shibuya - identical to examples/panasonic-th-40hs550k, which this list starts from.
+# ~0.9 GB RAM, 1280x720 UI.
+#
+# Apply:   TV_HOST=<tv ip> tools/disable.sh my-tv/debloat.txt
+# Undo:    TV_HOST=<tv ip> tools/restore.sh my-tv/debloat.txt
+# Everything is DISABLED, not uninstalled. Comment out any line you want to keep.
+#
+# Disabled before this debloat, so not listed (restore.sh would turn them ON):
+#   com.google.android.youtube.tvmusic, com.google.android.play.games
+
+# Batch 1 - Skyworth auto-installs, shop demo and setup leftovers
+android.autoinstalls.config.skyworth          # Play Auto Installs config for preloaded apps
+fusion.android.tv.demo                        # Skyworth retail demo service, starts at boot
+com.smartdevice.common.demonow                # "Demo Now" store demo app
+com.mstar.android.tv.disclaimercustomization  # disclaimer screen used only by first-run setup
+com.Smartdevice.emanual                       # on-screen manual
+
+# Batch 2 - telemetry and background services
+com.google.android.feedback
+com.mediatek.testpq                           # MediaTek picture-quality test tool, starts at boot
+com.google.android.syncadapters.calendar
+
+# Batch 3 - not used (owner's choice)
+com.amazon.amazonvideo.livingroom             # Prime Video
+com.vuclip.viu.tv                             # Viu
+iflix.play                                    # iflix
+com.bstar.intl.tv                             # Bstation
+com.google.android.videos                     # Play Movies & TV
+# com.mediatek.wwtv.mediaplayer               # USB media player: kept, disable.sh guard (asks TV_INPUT_HARDWARE)
+# com.google.android.backdrop                 # Ambient Mode art gallery screensaver: re-enabled by owner's choice
+
+# Batch 4 - stock-launcher recommendation rows and partner config
+com.google.android.tvrecommendations
+com.google.android.leanbacklauncher.partnercustomizer
+
+# Stock launcher, replaced by launcher/
+# com.google.android.tvlauncher   # launcher/build-and-install.sh disables it itself, after Home has moved
+
+# Kept on purpose: all com.mediatek.* except the two above (Live TV, HDMI, tuner), com.coocaa.factory,
+# com.google.android.katniss (Assistant), com.google.android.apps.mediashell (Chromecast),
+# com.google.android.tv.remote.service, com.airoha.ble.ota (remote firmware), Bluetooth, Gboard, TTS,
+# Play Store, Play Services, Netflix, YouTube, Vidio, Catchplay.

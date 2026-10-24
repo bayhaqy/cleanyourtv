@@ -1,0 +1,46 @@
+{
+  "dock_apps": [
+    "com.netflix.ninja",
+    "com.google.android.youtube.tv",
+    "com.vidio.android.tv",
+    "com.catchplay.asiaplay.common.tv",
+    "com.android.vending"
+  ],
+  "hidden_apps": [
+    "com.mediatek.wwtv.tvcenter",
+    "com.mediatek.wwtv.mediaplayer",
+    "com.airoha.ble.ota"
+  ],
+  "columns": 5,
+  "rows_below_dock": 1,
+  "background_color": "#070A12",
+  "sky_intensity": 0,
+  "cinematic_home": false,
+  "dock_glass": true,
+  "dock_even_padding": true,
+  "app_glow": true,
+  "glow_style": "horizon",
+  "icon_only_buttons": true,
+  "wifi_status_color": true,
+  "show_stats": true,
+  "tile_menu": true,
+  "focus_overshoot": true,
+  "advanced_effects": true,
+  "wallpaper": true,
+  "app_library": true,
+  "library_apps": [
+    "com.android.deskclock"
+  ],
+  "app_labels": [
+    "com.majnioui.tv.prayer=Waktu Salat",
+    "io.github.sumyabazar1.weather=Cuaca",
+    "com.android.deskclock=Alarm",
+    "com.phlox.tvwebbrowser=Browser"
+  ],
+  "dock_opacity": 55,
+  "always_show_names": false,
+  "fade_rows": true,
+  "ambient_glow": false,
+  "dock_title": true,
+  "icon_only_inputs": true
+}
