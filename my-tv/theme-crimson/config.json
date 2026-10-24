@@ -42,5 +42,6 @@
   "fade_rows": true,
   "ambient_glow": false,
   "dock_title": true,
-  "icon_only_inputs": true
+  "icon_only_inputs": true,
+  "wallpaper_true_color": true
 }

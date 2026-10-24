@@ -447,6 +447,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (getResources().getBoolean(R.bool.glance_line)) {
             glance = new Glance(this);
             stats.setTextSize(16);
+            // Sub-pixel glyph positions: the thin labels and figures stay even at 720p instead of snapping to pixels.
+            stats.setPaintFlags(stats.getPaintFlags() | android.graphics.Paint.SUBPIXEL_TEXT_FLAG);
         }
         showStats = cfg.showStats || glance != null;
         shamsi = cfg.shamsiDate;

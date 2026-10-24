@@ -6,7 +6,8 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-W, H = 1920, 1080
+# The TV draws at 1280x720 (its only display mode): rendering at that size avoids any rescale blur.
+W, H = 1280, 720
 out = sys.argv[1]
 rng = np.random.default_rng(int(sys.argv[2]) if len(sys.argv) > 2 else 7)
 PALETTE = sys.argv[3] if len(sys.argv) > 3 else "redblack"
@@ -35,7 +36,7 @@ else:
     img += field(0.30, 0.62, 0.35, 0.16, (219, 39, 119), 0.30)
     img += field(0.10, 0.05, 0.25, 0.18, (37, 99, 235), 0.30)
 
-base = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(60))
+base = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(60 * W / 1920))
 
 # Ribbons: a family of thin sine curves sweeping across the upper middle, drawn bright, then a wide glow copy.
 lines = Image.new("RGB", (W, H))
@@ -46,17 +47,17 @@ for i in range(26):
     pts = []
     for px in range(-40, W + 41, 8):
         u = px / W
-        yy = (0.30 + 0.20 * t) * H + 120 * np.sin(u * 4.2 + phase + t * 1.6) + 50 * np.sin(u * 9.0 - t * 3.0)
+        yy = (0.30 + 0.20 * t) * H + 120 * H / 1080 * np.sin(u * 4.2 + phase + t * 1.6) + 50 * H / 1080 * np.sin(u * 9.0 - t * 3.0)
         pts.append((px, yy))
     c = (235, int(225 - 90 * t), int(228 - 90 * t)) if RED else (int(90 + 110 * (1 - t)), int(100 + 70 * t), 235)
     draw.line(pts, fill=tuple(int(v * (0.18 + 0.22 * np.sin(t * 3.14))) for v in c), width=2)
-glow = lines.filter(ImageFilter.GaussianBlur(14))
-lines = lines.filter(ImageFilter.GaussianBlur(2.6))
+glow = lines.filter(ImageFilter.GaussianBlur(14 * W / 1920))
+lines = lines.filter(ImageFilter.GaussianBlur(2.6 * W / 1920 + 0.6))
 art = np.asarray(base, np.float32) + np.asarray(lines, np.float32) * 0.8 + np.asarray(glow, np.float32) * 0.9
 
 # Faint dot grid, fading in towards the right, for a technical feel.
 grid = np.zeros((H, W), np.float32)
-grid[::36, ::36] = 1.0
+grid[::24, ::24] = 1.0
 grid = np.asarray(Image.fromarray((grid * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8)), np.float32)
 art += (grid / 255.0 * 38 * np.clip(nx * 1.4 - 0.2, 0, 1) * (1 - ny))[..., None]
 
@@ -67,5 +68,5 @@ art *= shade[..., None]
 
 # A little grain so dark gradients don't band on an 8-bit panel.
 art += rng.normal(0, 1.6, art.shape)
-Image.fromarray(np.clip(art, 0, 255).astype(np.uint8)).save(out, "JPEG", quality=86, optimize=True, progressive=True)
+Image.fromarray(np.clip(art, 0, 255).astype(np.uint8)).save(out, "JPEG", quality=95, subsampling=0, optimize=True)
 print(out, round(float(np.clip(art, 0, 255).mean()), 1))

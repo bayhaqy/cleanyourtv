@@ -18,6 +18,9 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     private final float density;
     private final Paint band = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint edge = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** A brighter rim along the band's top edge only, fading out at both ends: light catching a glass edge. */
+    private final Paint sheen = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private float sheenLeft = Float.NaN, sheenRight = Float.NaN;
     private final RectF rect = new RectF();
 
     /** Extra band below the tiles for their names (always_show_names), in px. */
@@ -47,6 +50,8 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         edge.setStyle(Paint.Style.STROKE);
         edge.setStrokeWidth(density);
         edge.setColor(lightGlass ? 0x38FFFFFF : translucent ? 0x26FFFFFF : 0x1FFFFFFF);
+        sheen.setStyle(Paint.Style.STROKE);
+        sheen.setStrokeWidth(1.25f * density);
     }
 
     /** Concentric corners: the band's radius is the tiles' radius plus the band's padding around them. */
@@ -128,5 +133,15 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         }
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
+        if (rect.left != sheenLeft || rect.right != sheenRight) {
+            sheen.setShader(new LinearGradient(rect.left, 0, rect.right, 0, new int[] {0x00FFFFFF, 0x99FFFFFF, 0x00FFFFFF},
+                    null, Shader.TileMode.CLAMP));
+            sheenLeft = rect.left;
+            sheenRight = rect.right;
+        }
+        c.save();
+        c.clipRect(rect.left, rect.top - density, rect.right, rect.top + radius * 0.6f);
+        c.drawRoundRect(rect, radius, radius, sheen);
+        c.restore();
     }
 }
