@@ -63,6 +63,19 @@ Push it with `tools\theme.ps1 -TvHost <tv ip> my-tv\theme-crimson`.
 **Other**: animation scales 0.5x, app caches trimmed, `bg-dexopt-job` run, alarm sound set (it was silent),
 TV Bro installed as the browser (Chrome is not available for Android TV), Ambient Mode screensaver kept.
 
+**Second pass**:
+- Private DNS `dns.adguard-dns.com` (blocks ad and tracker domains; not YouTube ads). Undo in `restore.ps1`.
+- The TV sleeps after 10 minutes without input (`sleep_timeout` 600000): the screensaver starts at 5, the TV goes
+  to standby 5 minutes later. Playing video keeps it on.
+- System language Indonesian, so the launcher greets in Indonesian and uses a 24-hour clock.
+- `RUN_ANY_IN_BACKGROUND` off for Vidio, Catchplay+, TV Bro and TV Hub: they work normally when open.
+- Apps and firmware checked: all up to date (Play Store, system update).
+- TV Hub reads one curated playlist, `iptv/pilihan.m3u`, made by `iptv/make_playlist.py` from the public
+  [iptv-org](https://github.com/iptv-org/iptv) database. Only streams that answered when the script ran are kept;
+  favourites first (numbers 1 and 50), then Indonesia by category (101-), Malaysia and Singapore (301-) and the world
+  by category (401-). TV Hub source: `https://raw.githubusercontent.com/bayhaqy/cleanyourtv/main/my-tv/iptv/pilihan.m3u`.
+  Run the script again now and then and push: dead streams drop out.
+
 ## Rebuild on a Windows PC with little free memory
 
 Gradle needs its heap capped on this PC, or the daemon dies:

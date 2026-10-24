@@ -17,7 +17,12 @@ $py = 'tools\venv\Scripts\python.exe'
 & $py tools\tv.py 'settings put secure screensaver_components com.google.android.backdrop/.Backdrop'
 & $py tools\tv.py 'settings put global window_animation_scale 1.0; settings put global transition_animation_scale 1.0; settings put global animator_duration_scale 1.0'
 
+# 2b. Tuning from the second pass: Private DNS off, sleep after 24 h again (was 10 min), background limits lifted.
+& $py tools	v.py 'settings put global private_dns_mode opportunistic; settings delete global private_dns_specifier; settings put secure sleep_timeout 86400000'
+& $py tools	v.py 'for p in com.vidio.android.tv com.catchplay.asiaplay.common.tv com.phlox.tvwebbrowser io.github.maxhayim.tvhub; do cmd appops set $p RUN_ANY_IN_BACKGROUND allow; done'
+# The system language was switched to Indonesian in Settings > Device Preferences > Language; switch it back there.
+
 # 3. Optional: remove the launcher and the add-ons this setup installed.
-#    & $py tools\tv.py 'pm uninstall com.gathin.tvhome; pm uninstall io.github.bayhaqy.tvcare; pm uninstall io.github.maxhayim.tvhub'
+#    & $py tools\tv.py 'pm uninstall com.gathin.tvhome; pm uninstall io.github.bayhaqy.tvcare; pm uninstall io.github.maxhayim.tvhub; pm uninstall com.phlox.tvwebbrowser'
 & $py tools\tv.py 'cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tail -1'
 Write-Host 'Done. Apps uninstalled from the Play Store during the setup can be installed again from the Play Store.'
