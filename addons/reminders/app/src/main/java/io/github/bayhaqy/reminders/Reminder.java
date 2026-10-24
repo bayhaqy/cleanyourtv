@@ -62,6 +62,36 @@ final class Reminder {
         return String.format(Locale.ROOT, "%02d:%02d", hour, minute);
     }
 
+    /** The yyyymmdd key a number of days away. */
+    static int shift(int key, int days, TimeZone tz) {
+        Calendar c = calendar(key, tz);
+        c.add(Calendar.DAY_OF_MONTH, days);
+        return dateKey(c.getTimeInMillis(), tz);
+    }
+
+    /**
+     * One field of a yyyymmdd key stepped by delta, the way the editor's digits move: the day and the month wrap
+     * within their range without touching the others, the year just moves, and a day past the month's end is clamped.
+     */
+    static int withField(int key, int field, int delta, TimeZone tz) {
+        Calendar c = calendar(key, tz);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        if (field == Calendar.YEAR) c.add(Calendar.YEAR, delta);
+        else if (field == Calendar.MONTH) c.set(Calendar.MONTH, Math.floorMod(c.get(Calendar.MONTH) + delta, 12));
+        int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        if (field == Calendar.DAY_OF_MONTH) day = Math.floorMod(Math.min(day, max) - 1 + delta, max) + 1;
+        c.set(Calendar.DAY_OF_MONTH, Math.min(day, max));
+        return dateKey(c.getTimeInMillis(), tz);
+    }
+
+    static Calendar calendar(int key, TimeZone tz) {
+        Calendar c = Calendar.getInstance(tz);
+        c.clear();
+        c.set(key / 10000, (key / 100) % 100 - 1, key % 100);
+        return c;
+    }
+
     static int dateKey(long millis, TimeZone tz) {
         Calendar c = Calendar.getInstance(tz);
         c.setTimeInMillis(millis);

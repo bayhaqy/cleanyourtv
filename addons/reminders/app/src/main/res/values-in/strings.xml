@@ -30,6 +30,15 @@
     <string name="snooze">Tunda 10 menit</string>
     <string name="done">Selesai</string>
     <string name="alert_kicker">PENGINGAT</string>
+    <string name="pick_month">PILIH BULAN &amp; TAHUN</string>
+    <string name="pick_year_hint">Atas/Bawah mengubah tahun · OK, lalu pilih bulan</string>
+    <string name="today">Hari ini</string>
+    <string name="show_all">× Tampilkan semua</string>
+    <string name="list_for">PENGINGAT · %1$s</string>
+    <string name="none_on_day">Tidak ada pengingat di hari ini. + Pengingat baru akan menambahkannya.</string>
+    <string name="calendar_hint">Panah memilih hari · OK menandai · CH+/− ganti bulan</string>
+    <string name="edit_date">TANGGAL · ATAS/BAWAH MENGUBAH · OK UNTUK LANJUT</string>
+    <string name="past">Waktu itu sudah lewat</string>
     <string-array name="presets">
         <item>Minum obat</item>
         <item>Salat</item>

@@ -23,7 +23,9 @@ public class MainActivity extends Activity {
     private LinearLayout list;
     private TextView status, next;
     private MonthView month;
-    private TextView add;
+    private TextView add, listTitle, monthTitle;
+    /** The day picked on the calendar (yyyymmdd) that the list is filtered to, or 0 for every reminder. */
+    private int pickKey;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -41,7 +43,7 @@ public class MainActivity extends Activity {
         LinearLayout quick = Ui.row(this);
         quick.setPadding(0, Ui.px(this, 18), 0, Ui.px(this, 6));
         add = Ui.button(this, getString(R.string.add), 16);
-        add.setOnClickListener(v -> startActivity(new Intent(this, EditActivity.class)));
+        add.setOnClickListener(v -> startActivity(new Intent(this, EditActivity.class).putExtra(EditActivity.EXTRA_DATE, pickKey)));
         quick.addView(add, Ui.gap(this, 14));
         quick.addView(quickButton(R.string.quick_15, 15), Ui.gap(this, 10));
         quick.addView(quickButton(R.string.quick_30, 30), Ui.gap(this, 10));
@@ -63,7 +65,8 @@ public class MainActivity extends Activity {
         body.setPadding(0, Ui.px(this, 14), 0, 0);
         LinearLayout left = Ui.row(this);
         left.setOrientation(LinearLayout.VERTICAL);
-        left.addView(Ui.kicker(this, getString(R.string.list_title)));
+        listTitle = Ui.kicker(this, getString(R.string.list_title));
+        left.addView(listTitle);
         ScrollView scroll = new ScrollView(this);
         scroll.setClipToPadding(false);
         scroll.setPadding(Ui.px(this, 6), Ui.px(this, 8), Ui.px(this, 6), Ui.px(this, 24));
@@ -77,8 +80,38 @@ public class MainActivity extends Activity {
         right.setOrientation(LinearLayout.VERTICAL);
         right.setPadding(Ui.px(this, 22), Ui.px(this, 18), Ui.px(this, 22), Ui.px(this, 18));
         right.setBackground(Ui.panel(this, Ui.CARD, Ui.LINE, 18));
-        right.addView(Ui.kicker(this, getString(R.string.calendar)));
+        LinearLayout nav = Ui.row(this);
+        nav.setGravity(Gravity.CENTER_VERTICAL);
         month = new MonthView(this);
+        TextView prev = Ui.button(this, "‹", 18);
+        prev.setOnClickListener(v -> month.stepMonth(-1));
+        nav.addView(prev, Ui.gap(this, 8));
+        monthTitle = Ui.button(this, "", 16);
+        monthTitle.setSingleLine(true);
+        monthTitle.setPadding(Ui.px(this, 6), Ui.px(this, 10), Ui.px(this, 6), Ui.px(this, 10));
+        monthTitle.setOnClickListener(v -> MonthPicker.show(this, month.year(), month.month(), month::show));
+        nav.addView(monthTitle, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView nextMonth = Ui.button(this, "›", 18);
+        nextMonth.setOnClickListener(v -> month.stepMonth(1));
+        LinearLayout.LayoutParams nlp = Ui.gap(this, 8);
+        nlp.setMarginStart(Ui.px(this, 8));
+        nav.addView(nextMonth, nlp);
+        TextView today = Ui.button(this, getString(R.string.today), 14);
+        today.setOnClickListener(v -> month.today());
+        nav.addView(today);
+        right.addView(nav);
+        TextView calHint = Ui.text(this, getString(R.string.calendar_hint), 11, Ui.DIM);
+        calHint.setPadding(0, Ui.px(this, 6), 0, 0);
+        right.addView(calHint);
+        month.setListener(new MonthView.Listener() {
+            @Override public void onMonth(int y, int m) { monthTitle.setText(monthName(y, m)); }
+
+            @Override public void onPick(int key) {
+                pickKey = key;
+                refresh();
+            }
+        });
+        monthTitle.setText(monthName(month.year(), month.month()));
         LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(-1, 0, 1f);
         mlp.topMargin = Ui.px(this, 10);
         right.addView(month, mlp);
@@ -129,7 +162,27 @@ public class MainActivity extends Activity {
             return Long.compare(x, y);
         });
         list.removeAllViews();
-        if (sorted.isEmpty()) list.addView(Ui.text(this, getString(R.string.empty), 15, Ui.DIM));
+        if (pickKey != 0) {
+            // Filtered to one day: that day's reminders by time of day, and a way back to all of them.
+            sorted.removeIf(r -> !r.occursOn(pickKey / 10000, (pickKey / 100) % 100, pickKey % 100, tz));
+            sorted.sort((a, b) -> Integer.compare(a.hour * 60 + a.minute, b.hour * 60 + b.minute));
+            listTitle.setText(getString(R.string.list_for,
+                    DateFormat.format(DateFormat.getBestDateTimePattern(locale(), "EEEdMMMyyyy"),
+                            Reminder.calendar(pickKey, tz)).toString()));
+            TextView showAll = Ui.button(this, getString(R.string.show_all), 14);
+            showAll.setOnClickListener(v -> {
+                pickKey = 0;
+                month.clearPick();
+                refresh();
+            });
+            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(-2, -2);
+            alp.bottomMargin = Ui.px(this, 10);
+            list.addView(showAll, alp);
+            if (sorted.isEmpty()) list.addView(Ui.text(this, getString(R.string.none_on_day), 15, Ui.DIM));
+        } else {
+            listTitle.setText(getString(R.string.list_title));
+            if (sorted.isEmpty()) list.addView(Ui.text(this, getString(R.string.empty), 15, Ui.DIM));
+        }
         for (Reminder r : sorted) list.addView(row(r, r.next(now, tz)));
         month.set(all);
         Reminder first = sorted.isEmpty() ? null : sorted.get(0);
@@ -187,6 +240,11 @@ public class MainActivity extends Activity {
     private String when(long at) {
         String skeleton = DateFormat.getBestDateTimePattern(locale(), "EEEdMMMHHmm");
         return DateFormat.format(skeleton, at).toString();
+    }
+
+    private String monthName(int year, int month) {
+        String n = new DateFormatSymbols(locale()).getMonths()[month];
+        return n.substring(0, 1).toUpperCase(locale()) + n.substring(1) + " " + year;
     }
 
     private Locale locale() {

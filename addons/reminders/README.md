@@ -5,6 +5,10 @@ time with big digits (Up/Down change them, OK moves on), pick once, every day, w
 from presets (take medicine, prayer, pick up the kids, pay bills…) or typed or dictated. Quick buttons add one in
 15 or 30 minutes, an hour, or tomorrow at 07:00. When it is due, the reminder comes up full screen over whatever is
 playing, with the alarm sound for up to a minute, **Snooze 10 min** and **Done**; a TV in standby is woken for it.
+The calendar is walked with the remote: arrows move a day or a week and cross into the next or previous month,
+Channel +/- jump a month, ‹ › and **Today** sit above it, and the month title opens a month-and-year picker for any
+year from 1970 to 2200. OK on a day filters the list to that day, and **+ New reminder** then sets one for it; a
+one-off reminder has its own day, month and year in the editor.
 It declares a CleanYourTV [module card](../../docs/modules.md) ("Reminders · Alarms and calendar", red glow).
 
 ![Reminders on a TV](screenshot.jpg)
@@ -35,4 +39,6 @@ TV_HOST=<tv ip> tools/venv/bin/python -I tools/tv.py 'pm install -r /data/local/
 ## Tested on
 
 Changhong 43" (Skyworth `shibuya`, MediaTek), Android TV 11, firmware RTO9.240708.002: list, calendar, quick add,
-the editor with the remote, and a reminder set two minutes ahead with the TV in standby.
+the editor with the remote, a reminder set two minutes ahead with the TV in standby, the calendar walked into the
+next month, the picker jumping to March 2023, and a reminder that played its sound (alarm stream; raise the TV's
+alarm volume if it was at its lowest).

@@ -30,6 +30,15 @@
     <string name="snooze">Snooze 10 min</string>
     <string name="done">Done</string>
     <string name="alert_kicker">REMINDER</string>
+    <string name="pick_month">CHOOSE MONTH &amp; YEAR</string>
+    <string name="pick_year_hint">Up/Down changes the year · OK, then pick a month</string>
+    <string name="today">Today</string>
+    <string name="show_all">× Show all</string>
+    <string name="list_for">REMINDERS · %1$s</string>
+    <string name="none_on_day">Nothing on this day. + New reminder adds one for it.</string>
+    <string name="calendar_hint">Arrows walk the days · OK picks one · CH+/− change month</string>
+    <string name="edit_date">DATE · UP/DOWN TO CHANGE · OK TO GO ON</string>
+    <string name="past">That time has already passed</string>
     <string-array name="presets">
         <item>Take medicine</item>
         <item>Prayer</item>

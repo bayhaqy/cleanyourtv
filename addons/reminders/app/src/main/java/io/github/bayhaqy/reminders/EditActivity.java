@@ -24,8 +24,11 @@ public class EditActivity extends Activity {
     private Reminder r;
     private TextView hour, minute;
     private final List<TextView> repeats = new ArrayList<>(), days = new ArrayList<>(), labels = new ArrayList<>();
-    private LinearLayout dayRow;
+    private LinearLayout dayRow, dateRow;
+    private TextView dateDay, dateMonth, dateYear, error;
     private EditText custom;
+    /** A new reminder's date (yyyymmdd), from the day picked on the calendar; 0 for today or tomorrow. */
+    static final String EXTRA_DATE = "date";
 
     private static final int[] DAYS = {Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY,
             Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
@@ -43,7 +46,9 @@ public class EditActivity extends Activity {
             r.minute = c.get(Calendar.MINUTE) / 5 * 5;
             r.label = getResources().getStringArray(R.array.presets)[0];
             r.weekday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            r.date = getIntent().getIntExtra(EXTRA_DATE, 0);
         }
+        if (r.date == 0) r.date = soonest();
         LinearLayout page = Ui.page(this);
         page.addView(Ui.text(this, getString(r.id == 0 ? R.string.add : R.string.edit), 30, Ui.WHITE));
 
@@ -79,6 +84,21 @@ public class EditActivity extends Activity {
             dayRow.addView(chip, Ui.gap(this, 8));
         }
         page.addView(dayRow);
+
+        // The date, for a reminder that fires once: day, month and year, each changed with Up/Down.
+        dateRow = Ui.row(this);
+        dateRow.setOrientation(LinearLayout.VERTICAL);
+        dateRow.addView(spaced(Ui.kicker(this, getString(R.string.edit_date)), 14));
+        LinearLayout dateDigits = Ui.row(this);
+        dateDigits.setGravity(Gravity.CENTER_VERTICAL);
+        dateDay = dateDigit(Calendar.DAY_OF_MONTH);
+        dateMonth = dateDigit(Calendar.MONTH);
+        dateYear = dateDigit(Calendar.YEAR);
+        dateDigits.addView(dateDay, Ui.gap(this, 10));
+        dateDigits.addView(dateMonth, Ui.gap(this, 10));
+        dateDigits.addView(dateYear);
+        dateRow.addView(dateDigits);
+        page.addView(dateRow);
 
         page.addView(spaced(Ui.kicker(this, getString(R.string.edit_label)), 14));
         HorizontalScrollView hs = new HorizontalScrollView(this);
@@ -118,6 +138,9 @@ public class EditActivity extends Activity {
         TextView cancel = Ui.button(this, getString(R.string.cancel), 17);
         cancel.setOnClickListener(v -> finish());
         actions.addView(cancel);
+        error = Ui.text(this, "", 14, Ui.RED);
+        error.setPadding(Ui.px(this, 16), 0, 0, 0);
+        actions.addView(error);
         page.addView(actions);
 
         String presetMatch = null;
@@ -153,11 +176,46 @@ public class EditActivity extends Activity {
         return t;
     }
 
+    /** A date field the size of a chip: Up/Down step it (wrapping day and month), OK moves on to the label row. */
+    private TextView dateDigit(int field) {
+        TextView t = Ui.button(this, "", 22);
+        t.setMinWidth(Ui.px(this, field == Calendar.MONTH ? 120 : 76));
+        t.setOnKeyListener((v, code, e) -> {
+            if (e.getAction() != KeyEvent.ACTION_DOWN) return false;
+            if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER) {
+                (labels.isEmpty() ? custom : labels.get(0)).requestFocus();
+                return true;
+            }
+            int step = code == KeyEvent.KEYCODE_DPAD_UP ? 1 : code == KeyEvent.KEYCODE_DPAD_DOWN ? -1 : 0;
+            if (step == 0) return false;
+            r.date = Reminder.withField(r.date, field, step, TimeZone.getDefault());
+            error.setText("");
+            refresh();
+            return true;
+        });
+        return t;
+    }
+
+    /** Today if the set time is still ahead, else tomorrow. */
+    private int soonest() {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, r.hour);
+        c.set(Calendar.MINUTE, r.minute);
+        c.set(Calendar.SECOND, 0);
+        if (c.getTimeInMillis() <= System.currentTimeMillis()) c.add(Calendar.DAY_OF_MONTH, 1);
+        return Reminder.dateKey(c.getTimeInMillis(), TimeZone.getDefault());
+    }
+
     private void refresh() {
         hour.setText(String.format(Locale.ROOT, "%02d", r.hour));
         minute.setText(String.format(Locale.ROOT, "%02d", r.minute));
         for (int i = 0; i < repeats.size(); i++) select(repeats.get(i), i == r.repeat);
         dayRow.setVisibility(r.repeat == Reminder.WEEKLY ? android.view.View.VISIBLE : android.view.View.GONE);
+        dateRow.setVisibility(r.repeat == Reminder.ONCE ? android.view.View.VISIBLE : android.view.View.GONE);
+        String mon = new DateFormatSymbols(locale()).getShortMonths()[(r.date / 100) % 100 - 1];
+        dateDay.setText(String.format(Locale.ROOT, "%02d", r.date % 100));
+        dateMonth.setText(mon);
+        dateYear.setText(String.valueOf(r.date / 10000));
         for (int i = 0; i < days.size(); i++) select(days.get(i), DAYS[i] == r.weekday);
         String[] p = getResources().getStringArray(R.array.presets);
         for (int i = 0; i < labels.size(); i++) select(labels.get(i), p[i].equals(r.label));
@@ -171,16 +229,11 @@ public class EditActivity extends Activity {
     private void save() {
         String typed = custom.getText().toString().trim();
         if (!typed.isEmpty()) r.label = typed;
-        if (r.repeat == Reminder.ONCE) {
-            // Today if that time is still ahead, else tomorrow.
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.HOUR_OF_DAY, r.hour);
-            c.set(Calendar.MINUTE, r.minute);
-            c.set(Calendar.SECOND, 0);
-            if (c.getTimeInMillis() <= System.currentTimeMillis()) c.add(Calendar.DAY_OF_MONTH, 1);
-            r.date = Reminder.dateKey(c.getTimeInMillis(), TimeZone.getDefault());
-        }
         r.enabled = true;
+        if (r.repeat == Reminder.ONCE && r.next(System.currentTimeMillis(), TimeZone.getDefault()) < 0) {
+            error.setText(R.string.past);
+            return;
+        }
         Store.put(this, r);
         finish();
     }

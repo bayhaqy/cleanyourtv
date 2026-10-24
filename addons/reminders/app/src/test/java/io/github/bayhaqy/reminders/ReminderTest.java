@@ -73,6 +73,21 @@ public class ReminderTest {
         assertFalse(o.occursOn(2026, 10, 31, TZ));
     }
 
+    @Test public void shiftMovesAcrossMonthsAndYears() {
+        assertEquals(20261101, Reminder.shift(20261031, 1, TZ));
+        assertEquals(20251231, Reminder.shift(20260101, -1, TZ));
+        assertEquals(20280229, Reminder.shift(20280222, 7, TZ));
+        assertEquals(20261024, Reminder.shift(20261024, 0, TZ));
+    }
+
+    @Test public void withFieldClampsTheDay() {
+        // Changing the month of 31 Jan to February lands on the last day, not in March.
+        assertEquals(20260228, Reminder.withField(20260131, Calendar.MONTH, 1, TZ));
+        assertEquals(20270131, Reminder.withField(20260131, Calendar.YEAR, 1, TZ));
+        assertEquals(20260101, Reminder.withField(20260131, Calendar.DAY_OF_MONTH, 1, TZ));
+        assertEquals(20261201, Reminder.withField(20260101, Calendar.MONTH, -1, TZ));   // wraps within the year
+    }
+
     @Test public void dateKeyAndTimeText() {
         assertEquals(20261030, Reminder.dateKey(at(2026, 10, 30, 23, 59), TZ));
         assertEquals("07:05", r(Reminder.DAILY, 7, 5).timeText());
