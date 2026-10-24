@@ -20,6 +20,8 @@ $py = 'tools\venv\Scripts\python.exe'
 # 2b. Tuning from the second pass: Private DNS off, sleep after 24 h again (was 10 min), background limits lifted.
 & $py tools	v.py 'settings put global private_dns_mode opportunistic; settings delete global private_dns_specifier; settings put secure sleep_timeout 86400000'
 & $py tools	v.py 'for p in com.vidio.android.tv com.catchplay.asiaplay.common.tv com.phlox.tvwebbrowser io.github.maxhayim.tvhub; do cmd appops set $p RUN_ANY_IN_BACKGROUND allow; done'
+# 1080p supersampling override back to the panel's own 720p.
+& $py tools	v.py 'wm size reset; wm density reset'
 # The system language was switched to Indonesian in Settings > Device Preferences > Language; switch it back there.
 
 # 3. Optional: remove the launcher and the add-ons this setup installed.

@@ -83,6 +83,17 @@ TV Bro installed as the browser (Chrome is not available for Android TV), Ambien
   ExtraLight 60sp clock with tabular figures, sub-pixel glance text, and the wallpaper rendered at the panel's own
   1280x720 in 32-bit colour. The panel has only one display mode (1280x720), so nothing above 720p is possible.
 
+**Fourth pass**:
+- The panel's only display mode is 1280x720, and the firmware caps `wm size` overrides at 1920x1080 (2560x1440 and
+  3840x2160 are clamped to it). The UI now draws at `wm size 1920x1080` / `wm density 320` and is downscaled to the
+  panel: smoother edges and text, at a cost measured on Home of about 54% janky frames (p90 42 ms) against 0% (8 ms)
+  at 720p. It applies to every app. Undo: `wm size reset; wm density reset` (in `restore.ps1`). The wallpaper is
+  rendered at 1920x1080 to match.
+- TV Hub keeps the curated `pilihan.m3u` first and adds back the five iptv-org lists (Indonesia, news, documentary,
+  sports, kids), which grow with iptv-org; duplicates merge by `tvg-id`, so favourites keep their numbers and groups.
+- Reminders: the calendar walks across months and years, a month-and-year picker, OK on a day filters the list, and
+  one-off reminders take a date. The TV's alarm volume on the speaker was 1 of 7 and is now 5.
+
 ## Rebuild on a Windows PC with little free memory
 
 Gradle needs its heap capped on this PC, or the daemon dies:

@@ -6,8 +6,8 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-# The TV draws at 1280x720 (its only display mode): rendering at that size avoids any rescale blur.
-W, H = 1280, 720
+# The launcher draws at 1920x1080 (the TV's largest override; the panel shows it downscaled to 1280x720).
+W, H = 1920, 1080
 out = sys.argv[1]
 rng = np.random.default_rng(int(sys.argv[2]) if len(sys.argv) > 2 else 7)
 PALETTE = sys.argv[3] if len(sys.argv) > 3 else "redblack"
