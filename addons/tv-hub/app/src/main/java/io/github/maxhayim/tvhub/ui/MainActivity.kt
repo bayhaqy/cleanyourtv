@@ -19,8 +19,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * The hub's window: a navigation rail on the left and one page beside it. Moving focus along the
- * rail switches the page; Right enters it; Back returns to the rail, and Back on the rail leaves.
+ * The hub's window: a tab bar along the top and one page under it. Moving focus along the tabs
+ * switches the page; Down enters it; Back returns to the tabs, and Back on the tabs leaves.
  */
 class MainActivity : Activity() {
     val scope = MainScope()
@@ -41,37 +41,46 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val root = LinearLayout(this).apply { setBackgroundColor(Ui.BG) }
+        val root = Ui.vertical(this).apply { background = backdrop() }
 
-        val rail = Ui.vertical(this, 6).apply {
-            setPadding(dp(20), dp(28), dp(12), dp(20))
-            setBackgroundColor(0xFF0F1216.toInt())
+        // The top bar: the name, one tab per page, then the refresh status and a clock on the right.
+        val bar = Ui.horizontal(this, 6).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(40), dp(22), dp(40), dp(10))
         }
-        rail.addView(Ui.text(this, getString(R.string.app_name), 24f, bold = true).apply { setPadding(dp(12), 0, 0, dp(18)) })
+        bar.addView(Ui.text(this, getString(R.string.app_name), 24f, bold = true).apply { setPadding(0, 0, dp(26), 0) })
         Page.entries.forEach { p ->
-            val item = Ui.text(this, p.label, 19f, Ui.DIM, bold = true).apply {
+            val item = Ui.text(this, p.label, 17f, Ui.DIM, bold = true).apply {
                 isFocusable = true; isClickable = true
-                background = Ui.focusable(this@MainActivity, 0x00000000, 22, Ui.SURFACE)
-                setPadding(dp(16), dp(10), dp(16), dp(10))
+                background = Ui.focusable(this@MainActivity, 0x00000000, 22, 0x33E11D2E)
+                setPadding(dp(18), dp(9), dp(18), dp(9))
                 setOnFocusChangeListener { _, has -> if (has && !restoring) show(p); refreshNavColors() }
                 setOnClickListener { focusContent() }
-                // Right always enters the page at its first control, not whatever sits nearest.
-                setOnKeyListener { _, code, e -> code == KeyEvent.KEYCODE_DPAD_RIGHT && e.action == KeyEvent.ACTION_DOWN && focusContent() }
+                // Down always enters the page at its first control, not whatever sits nearest.
+                setOnKeyListener { _, code, e -> code == KeyEvent.KEYCODE_DPAD_DOWN && e.action == KeyEvent.ACTION_DOWN && focusContent() }
                 id = View.generateViewId()
             }
             navItems[p] = item
-            rail.addView(item, Ui.lp(Ui.MATCH, Ui.WRAP))
+            bar.addView(item)
         }
-        // The rail ends at both ends instead of wandering into the page.
-        navItems.values.first().let { it.nextFocusUpId = it.id }
-        navItems.values.last().let { it.nextFocusDownId = it.id }
-        rail.addView(View(this), Ui.lp(Ui.MATCH, 0, 1f))
-        status = Ui.text(this, "", 13f, Ui.DIM, lines = 3).apply { setPadding(dp(12), 0, dp(4), 0) }
-        rail.addView(status, Ui.lp(Ui.MATCH, Ui.WRAP))
-        root.addView(rail, LinearLayout.LayoutParams(dp(210), Ui.MATCH))
+        // The tabs end at both ends instead of wandering off the bar.
+        navItems.values.first().let { it.nextFocusLeftId = it.id }
+        navItems.values.last().let { it.nextFocusRightId = it.id }
+        bar.addView(View(this), Ui.lp(0, 1, 1f))
+        status = Ui.text(this, "", 13f, Ui.DIM, lines = 1).apply { setPadding(0, 0, dp(18), 0) }
+        bar.addView(status)
+        bar.addView(android.widget.TextClock(this).apply {
+            typeface = Ui.face(this@MainActivity); textSize = 20f; setTextColor(Ui.TEXT)
+        })
+        root.addView(bar, Ui.lp(Ui.MATCH, Ui.WRAP))
+        // A hairline under the bar, bright in the middle and fading out at the ends.
+        root.addView(View(this).apply {
+            background = android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(0x00FFFFFF, 0x33FFFFFF, 0x00FFFFFF))
+        }, Ui.lp(Ui.MATCH, dp(1)).apply { setMargins(dp(40), 0, dp(40), 0) })
 
-        content = FrameLayout(this).apply { setPadding(dp(24), dp(28), dp(32), dp(20)) }
-        root.addView(content, LinearLayout.LayoutParams(0, Ui.MATCH, 1f))
+        content = FrameLayout(this).apply { setPadding(dp(32), dp(18), dp(32), dp(16)); clipChildren = false; clipToPadding = false }
+        root.addView(content, Ui.lp(Ui.MATCH, 0, 1f))
         setContentView(root)
 
         scope.launch {
@@ -132,9 +141,8 @@ class MainActivity : Activity() {
         s.view.setPadding(dp(8), s.view.paddingTop, dp(8), s.view.paddingBottom)
         (s.view as? android.view.ViewGroup)?.clipToPadding = false
         content.addView(s.view, FrameLayout.LayoutParams(Ui.MATCH, Ui.MATCH))
-        // The rail item to the left of the page is the current one, so Left from the page returns to it.
-        s.view.nextFocusLeftId = navItems.getValue(p).id
-        navItems.values.forEach { it.nextFocusRightId = View.NO_ID }
+        // The tab above the page is the current one, so Up from the page's top row returns to it.
+        s.view.nextFocusUpId = navItems.getValue(p).id
         s.onShow()
         refreshNavColors()
     }
@@ -164,6 +172,14 @@ class MainActivity : Activity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    /** Near-black with a faint crimson glow at the top right, as on the launcher. */
+    private fun backdrop() = android.graphics.drawable.GradientDrawable().apply {
+        gradientType = android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT
+        colors = intArrayOf(0x55B3001B, Ui.BG)
+        setGradientCenter(0.9f, 0f)
+        gradientRadius = resources.displayMetrics.widthPixels * 0.7f
     }
 
     companion object {

@@ -19,18 +19,31 @@ import java.util.Date
 
 /** The small view kit every screen is built from: colours, type sizes and the focus look. */
 object Ui {
-    const val BG = 0xFF0B0D10.toInt()
-    const val SURFACE = 0xFF161A20.toInt()
-    const val SURFACE_2 = 0xFF222832.toInt()
-    const val TEXT = 0xFFF2F4F7.toInt()
-    const val DIM = 0xFF9AA4B2.toInt()
-    const val ACCENT = 0xFF4FA3E0.toInt()
+    // Near-black with crimson accents and glass surfaces, matching the launcher's crimson theme.
+    const val BG = 0xFF0A0A0C.toInt()
+    const val SURFACE = 0xFF16161A.toInt()
+    const val SURFACE_2 = 0xFF26262C.toInt()
+    const val TEXT = 0xFFF5F5F7.toInt()
+    const val DIM = 0xFF9A9AA6.toInt()
+    const val ACCENT = 0xFFE11D2E.toInt()
     const val LIVE = 0xFFE5484D.toInt()
     const val ERROR = 0xFFFF7B72.toInt()
     const val OK = 0xFF5BC782.toInt()
 
     fun Context.dp(v: Number): Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v.toFloat(), resources.displayMetrics).toInt()
     fun View.dp(v: Number): Int = context.dp(v)
+
+    private var outfit: Typeface? = null
+    private var outfitBold: Typeface? = null
+
+    /** Outfit (SIL OFL), the launcher's typeface; the system sans if the font cannot load. */
+    fun face(c: Context, bold: Boolean = false): Typeface {
+        if (outfit == null) {
+            outfit = runCatching { c.resources.getFont(io.github.maxhayim.tvhub.R.font.outfit) }.getOrNull() ?: Typeface.SANS_SERIF
+            outfitBold = if (android.os.Build.VERSION.SDK_INT >= 28) Typeface.create(outfit, 600, false) else Typeface.create(outfit, Typeface.BOLD)
+        }
+        return (if (bold) outfitBold else outfit)!!
+    }
 
     fun animations(c: Context) = (c.applicationContext as TvHubApp).repo.prefs.animations
 
@@ -41,7 +54,7 @@ object Ui {
 
     /** Focused: lighter surface with a white ring. Clear focus is the main thing a 10-foot UI needs. */
     fun focusable(c: Context, normal: Int = SURFACE, radiusDp: Int = 12, selected: Int = SURFACE_2): Drawable = StateListDrawable().apply {
-        addState(intArrayOf(android.R.attr.state_focused), rounded(c, SURFACE_2, radiusDp, Color.WHITE, 3))
+        addState(intArrayOf(android.R.attr.state_focused), rounded(c, SURFACE_2, radiusDp, Color.WHITE, 2))
         addState(intArrayOf(android.R.attr.state_selected), rounded(c, selected, radiusDp, ACCENT, 2))
         addState(intArrayOf(), rounded(c, normal, radiusDp))
     }
@@ -59,7 +72,7 @@ object Ui {
 
     fun text(c: Context, s: CharSequence = "", sizeSp: Float = 18f, color: Int = TEXT, bold: Boolean = false, lines: Int = 1) = TextView(c).apply {
         text = s; setTextColor(color); setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
-        if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        typeface = face(c, bold)
         if (lines > 0) { maxLines = lines; ellipsize = TextUtils.TruncateAt.END }
         includeFontPadding = false
     }
